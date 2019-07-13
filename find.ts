@@ -259,6 +259,8 @@ async function init() {
   /* register service worker. */
   registerServiceWorker();
 
+  await fetch("cacheAllBooks");
+
   const form = document.querySelector("form");
   if (form) {
     if (state.mode !== "edit") state.mode = "find";

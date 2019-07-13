@@ -4,6 +4,19 @@ importScripts(
 
 declare const workbox: typeof import("workbox-sw");
 
+import { StringSet } from "./BookSet";
+
+interface Config {
+  base: number; // base of the encoding used for ids
+  digits: number; // number of digits in each id
+  lastReviewed: string; // id of last reviewed book
+  first: string; // id of first book
+  last: string; // id of last book
+}
+
+// load this down below in init
+let config: Config;
+
 workbox.loadModule("workbox-strategies");
 workbox.loadModule("workbox-precaching");
 
@@ -44,6 +57,34 @@ workbox.precaching.precacheAndRoute([
     './site.css',
 
 ]);
+
+// Prefetch all books.
+async function cacheAllBooks (){
+  let allBooks = await fetch("./content/index/AllAvailable");
+  let allImages = await fetch("images.json");
+
+  let newset = new StringSet(await allBooks.text(), config.digits);
+
+  let urls_for_precache = await allImages.json();
+  for (let id = newset.next(); id; id = newset.next()){
+    let url = ['./content', id[0],id[1]].join('/') + '.html';
+    urls_for_precache.push(url);
+  }
+
+  workbox.precaching.precacheAndRoute(urls_for_precache);
+  console.log("Caching:", urls_for_precache);
+  return urls_for_precache;
+}
+
+workbox.routing.registerRoute(/.\/cacheAllBooks$/, async () => {
+  try {
+    config = await (await fetch("content/config.json")).json();
+    await cacheAllBooks();
+    return new Response('Cacheing complete.');
+  } catch(err) {
+    return new Response('Error in cacheing. ' + err.toString());
+  }
+});
 
 workbox.routing.registerRoute(/.\/content\/index\/AllAvailable$/, async () => {
   let ids = getAllAvailableIDs();

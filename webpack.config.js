@@ -31,7 +31,7 @@ module.exports = {
     overlay: true,
     proxy: [
       {
-        context: ["/content", "config.json"],
+        context: ["/content", "/images.json", "config.json"],
         target: "https://gb.cs.unc.edu/static/tiny",
         secure: false,
         changeOrigin: true
