@@ -11,7 +11,8 @@ module.exports = {
     index: "./index.ts",
     worker: "./service-worker.ts",
     settings: "./settings.ts",
-    favorites: "./favorites.ts"
+    favorites: "./favorites.ts",
+    upload: "./upload.ts",
   },
   output: {
     filename: "[name].js",
